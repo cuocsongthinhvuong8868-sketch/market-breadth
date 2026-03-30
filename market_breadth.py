@@ -22,41 +22,25 @@ st.markdown("Đo lường số lượng cổ phiếu VNAllShare nằm trên các
 
 # ================= CẤU HÌNH DANH SÁCH MÃ =================
 VNALLSHARE_LIST = [
-    'AAA', 'AAM', 'AAT', 'ABS', 'ABT', 'ACB', 'ACC', 'ACG', 'ACL', 'ADG', 
-    'ADS', 'AGG', 'AGR', 'AMD', 'ANV', 'APC', 'APG', 'ASG', 'ASM', 'ASP', 
-    'AST', 'BAF', 'BCE', 'BCG', 'BCM', 'BFC', 'BHN', 'BIC', 'BID', 'BKG', 
-    'BMC', 'BMI', 'BMP', 'BRC', 'BSI', 'BTP', 'BTT', 'BVH', 'BWE', 'C32', 
-    'C47', 'CAV', 'CCI', 'CCL', 'CDC', 'CEV', 'CII', 'CKG', 'CLC', 'CLL', 
-    'CLW', 'CMG', 'CMV', 'CNG', 'COM', 'CRC', 'CRE', 'CSM', 'CSV', 'CTD', 
-    'CTF', 'CTG', 'CTI', 'CTS', 'CVT', 'D2D', 'DAG', 'DAH', 'DAT', 'DBC', 
-    'DBD', 'DBT', 'DC4', 'DCM', 'DGC', 'DGW', 'DHA', 'DHC', 'DHG', 'DHM', 
-    'DIG', 'DLG', 'DMC', 'DPG', 'DPM', 'DPR', 'DRC', 'DRL', 'DS3', 'DSN', 
-    'DTA', 'DTL', 'DTT', 'DVP', 'DXG', 'DXS', 'EIB', 'ELC', 'EVF', 'EVG', 
-    'FCN', 'FDC', 'FIR', 'FIT', 'FMC', 'FPT', 'FRT', 'FTS', 'GAS', 'GDT', 
-    'GEG', 'GEX', 'GIL', 'GMC', 'GMD', 'GSP', 'GTA', 'GVR', 'HAG', 'HAH', 
-    'HAI', 'HAP', 'HAR', 'HAS', 'HAX', 'HBC', 'HCM', 'HDB', 'HDC', 'HDG', 
-    'HQC', 'HRC', 'HSG', 'HSL', 'HT1', 'HTI', 'HTL', 'HTN', 'HTV', 'HU1', 
-    'HU3', 'HUB', 'HVH', 'HVN', 'HVX', 'ICT', 'IDI', 'IJC', 'ILB', 'IMP', 
-    'ITA', 'ITC', 'ITD', 'JVC', 'KBC', 'KDC', 'KDH', 'KMR', 'KOS', 'KPF', 
-    'KSB', 'L10', 'LIX', 'LM8', 'LPB', 'LSS', 'MBB', 'MCP', 'MDG', 'MHC', 
-    'MIG', 'MSB', 'MSH', 'MSN', 'MWG', 'NAF', 'NAV', 'NBB', 'NCT', 'NHA', 
-    'NHH', 'NKG', 'NLG', 'NNC', 'NSC', 'NT2', 'NTL', 'NVL', 'OCB', 'OPC', 
-    'ORS', 'PAC', 'PAN', 'PC1', 'PDN', 'PDR', 'PET', 'PGC', 'PGD', 'PGI', 
-    'PHC', 'PHR', 'PLX', 'PNJ', 'POM', 'POW', 'PPC', 'PRC', 'PSH', 'PTB', 
-    'PTC', 'PVD', 'PVT', 'QBS', 'QCG', 'RAL', 'REE', 'ROS', 'SAB', 'SAM', 
-    'SBA', 'SBT', 'SBV', 'SC5', 'SCD', 'SCR', 'SCS', 'SFC', 'SFI', 'SFG', 
-    'SGN', 'SGR', 'SHA', 'SHB', 'SHI', 'SHP', 'SII', 'SJD', 'SJF', 'SJS', 
-    'SKG', 'SMA', 'SMC', 'SPM', 'SRC', 'SRF', 'SSB', 'SSC', 'SSI', 'ST8', 
-    'STB', 'STG', 'STK', 'SVC', 'SVD', 'SVI', 'SVT', 'SZC', 'SZL', 'TBC', 
-    'TCB', 'TCD', 'TCH', 'TCL', 'TCM', 'TCO', 'TCR', 'TCT', 'TDC', 'TDG', 
-    'TDH', 'TDM', 'TDP', 'TDW', 'TEG', 'THG', 'TIP', 'TIX', 'TLG', 'TLH', 
-    'TMP', 'TMS', 'TMT', 'TN1', 'TNA', 'TNC', 'TNH', 'TNI', 'TNT', 'TPB', 
-    'TPC', 'TRA', 'TRC', 'TV2', 'TVB', 'TVS', 'TVT', 'TYA', 'UDC', 'UIC', 
-    'VAF', 'VCA', 'VCB', 'VCF', 'VCG', 'VCI', 'VCP', 'VDS', 'VFG', 'VGC', 
-    'VHC', 'VHM', 'VIB', 'VIC', 'VID', 'VIP', 'VIX', 'VJC', 'VMD', 'VND', 
-    'VNE', 'VNG', 'VNL', 'VNM', 'VNS', 'VOS', 'VPB', 'VPD', 'VPG', 'VPH', 
-    'VPI', 'VPS', 'VRC', 'VRE', 'VSC', 'VSH', 'VSI', 'VTB', 'VTO', 'YBM', 
-    'YEG'
+    'VIX', 'BSR', 'HCM', 'POW', 'KHG', 'DXG', 'CII', 'VND', 'VCI', 'EIB', 
+    'DIG', 'GEX', 'VSC', 'PVD', 'PDR', 'VCG', 'DPM', 'HAG', 'NVL', 'DBC', 
+    'PC1', 'TCH', 'GEL', 'EVF', 'PVT', 'KDH', 'KBC', 'NKG', 'MSB', 'DLG', 
+    'DCM', 'HHV', 'HQC', 'HSG', 'DGW', 'HDC', 'NLG', 'BAF', 'IJC', 'VCK', 
+    'PNJ', 'TCX', 'PET', 'SCR', 'VOS', 'GMD', 'LCG', 'DXS', 'HDG', 'HAH', 
+    'ANV', 'ORS', 'VGC', 'OCB', 'HHS', 'HVN', 'VHC', 'HPX', 'ELC', 'NT2', 
+    'VPI', 'TCM', 'YEG', 'LDG', 'SZC', 'AAA', 'VDS', 'NAB', 'KSB', 'BVH', 
+    'FTS', 'TTF', 'AGR', 'PAN', 'DRH', 'VTP', 'HHP', 'CRC', 'NTL', 'PHR', 
+    'CTR', 'DPR', 'VAB', 'DPG', 'VPX', 'CTS', 'CSV', 'FCN', 'HID', 'CTD', 
+    'MSH', 'EVG', 'NAF', 'SIP', 'HT1', 'KLB', 'VPL', 'FRT', 'DHC', 'OGC', 
+    'CTI', 'TV2', 'REE', 'BMI', 'BSI', 'QCG', 'HAX', 'FIT', 'GEE', 'CMG', 
+    'IDI', 'SBT', 'DCL', 'DRC', 'MIG', 'SHI', 'ASM', 'RYG', 'HPA', 'PVP', 
+    'SMC', 'GEG', 'CSM', 'TAL', 'TCO', 'KOS', 'AGG', 'SCS', 'DSE', 'BFC', 
+    'PAC', 'VIP', 'VTO', 'CTF', 'CRE', 'APG', 'DC4', 'TLG', 'GIL', 'PPC', 
+    'TDP', 'KDC', 'HII', 'VPG', 'TSC', 'APH', 'HSL', 'BIC', 'FIR', 'TTA', 
+    'TLH', 'HTN', 'SAM', 'VNE', 'MCH', 'TLD', 'TVS', 'PTB', 'VVS', 'LSS', 
+    'TDC', 'HAR', 'BWE', 'BMP', 'SKG', 'JVC', 'NHA', 'TSA', 'CDC', 'CMX','SHB', 'HPG', 'MBB', 'SSI', 'VPB', 'HDB', 'CTG', 'ACB', 'FPT', 'VCB', 
+    'TPB', 'STB', 'TCB', 'BID', 'PLX', 'VRE', 'VNM', 'MSN', 'GVR', 'VHM', 
+    'MWG', 'VIB', 'VIC', 'DGC', 'GAS', 'SSB', 'SAB', 'BCM', 'LPB', 'VJC'
 ]
 
 CACHE_FILE = "market_breadth_cache.csv"
@@ -144,7 +128,7 @@ if df_prices is not None and not df_prices.empty:
     df_breadth.dropna(inplace=True)
 
     # SỬA Ở ĐÂY: Ép dữ liệu chỉ hiển thị đúng 2 năm gần nhất (730 ngày)
-    two_years_ago = pd.to_datetime(datetime.now() - timedelta(days=730))
+    two_years_ago = pd.to_datetime(datetime.now() - timedelta(days=365))
     # Chuyển index của df_breadth về tz-naive nếu bị lệch múi giờ
     if df_breadth.index.tz is not None:
         df_breadth.index = df_breadth.index.tz_localize(None)
