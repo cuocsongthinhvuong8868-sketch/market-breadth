@@ -38,12 +38,13 @@ VNALLSHARE_LIST = [
     'PAC', 'VIP', 'VTO', 'CTF', 'CRE', 'APG', 'DC4', 'TLG', 'GIL', 'PPC', 
     'TDP', 'KDC', 'HII', 'VPG', 'TSC', 'APH', 'HSL', 'BIC', 'FIR', 'TTA', 
     'TLH', 'HTN', 'SAM', 'VNE', 'MCH', 'TLD', 'TVS', 'PTB', 'VVS', 'LSS', 
-    'TDC', 'HAR', 'BWE', 'BMP', 'SKG', 'JVC', 'NHA', 'TSA', 'CDC', 'CMX','SHB', 'HPG', 'MBB', 'SSI', 'VPB', 'HDB', 'CTG', 'ACB', 'FPT', 'VCB', 
+    'TDC', 'HAR', 'BWE', 'BMP', 'SKG', 'JVC', 'NHA', 'TSA', 'CDC', 'CMX',
+    'SHB', 'HPG', 'MBB', 'SSI', 'VPB', 'HDB', 'CTG', 'ACB', 'FPT', 'VCB', 
     'TPB', 'STB', 'TCB', 'BID', 'PLX', 'VRE', 'VNM', 'MSN', 'GVR', 'VHM', 
     'MWG', 'VIB', 'VIC', 'DGC', 'GAS', 'SSB', 'SAB', 'BCM', 'LPB', 'VJC'
 ]
 
-CACHE_FILE = "market_breadth_cache.csv"
+CACHE_FILE = r"C:\Users\ADMIN\Desktop\9999\market_breadth\market_breadth_cache.csv"
 
 # ================= HÀM TẢI VÀ XỬ LÝ DỮ LIỆU =================
 @st.cache_data(ttl=86400)
@@ -56,8 +57,7 @@ def load_and_process_data(symbols):
             return df_merged
 
     st.info("🔄 Không tìm thấy Cache của ngày hôm nay. Bắt đầu tải dữ liệu mới từ API...")
-    # SỬA Ở ĐÂY: Tải 3 năm (1095 ngày) để có vùng đệm tính MA252
-    start_date = (datetime.now() - timedelta(days=1095)).strftime('%Y-%m-%d')
+    start_date = (datetime.now() - timedelta(days=1825)).strftime('%Y-%m-%d')
     end_date = datetime.now().strftime('%Y-%m-%d')
     
     all_data = []
@@ -74,10 +74,12 @@ def load_and_process_data(symbols):
             
             if df is not None and not df.empty:
                 df.columns = df.columns.str.lower()
-                df_close = df[['time', 'close']].copy()
-                df_close.rename(columns={'close': symbol}, inplace=True)
-                df_close.set_index('time', inplace=True)
-                all_data.append(df_close)
+                
+                # CẬP NHẬT: Lấy cả giá đóng cửa và khối lượng
+                df_temp = df[['time', 'close', 'volume']].copy()
+                df_temp.rename(columns={'close': f'{symbol}_close', 'volume': f'{symbol}_volume'}, inplace=True)
+                df_temp.set_index('time', inplace=True)
+                all_data.append(df_temp)
             
             time.sleep(1) 
             
@@ -102,17 +104,24 @@ def load_and_process_data(symbols):
     return df_merged
 
 # ================= TÍNH TOÁN MARKET BREADTH =================
-df_prices = load_and_process_data(VNALLSHARE_LIST)
+df_merged = load_and_process_data(VNALLSHARE_LIST)
 
-if df_prices is not None and not df_prices.empty:
+if df_merged is not None and not df_merged.empty:
+    
+    # Tách dataframe giá (close) và khối lượng (volume)
+    df_prices = df_merged.filter(regex='_close$').rename(columns=lambda x: x.replace('_close', ''))
+    df_volumes = df_merged.filter(regex='_volume$').rename(columns=lambda x: x.replace('_volume', ''))
     
     df_prices = df_prices.ffill()
+    df_volumes = df_volumes.fillna(0) # Tránh lỗi NaN cho volume
 
+    # Tính các đường MA
     ma20 = df_prices.rolling(window=20).mean()
     ma60 = df_prices.rolling(window=60).mean()
     ma125 = df_prices.rolling(window=125).mean()
     ma252 = df_prices.rolling(window=252).mean()
 
+    # Tính Breadth (số lượng)
     breadth_20 = (df_prices > ma20).sum(axis=1)
     breadth_60 = (df_prices > ma60).sum(axis=1)
     breadth_125 = (df_prices > ma125).sum(axis=1)
@@ -127,50 +136,109 @@ if df_prices is not None and not df_prices.empty:
     
     df_breadth.dropna(inplace=True)
 
-    # SỬA Ở ĐÂY: Ép dữ liệu chỉ hiển thị đúng 2 năm gần nhất (730 ngày)
-    two_years_ago = pd.to_datetime(datetime.now() - timedelta(days=365))
-    # Chuyển index của df_breadth về tz-naive nếu bị lệch múi giờ
     if df_breadth.index.tz is not None:
         df_breadth.index = df_breadth.index.tz_localize(None)
-        
-    df_breadth_plot = df_breadth[df_breadth.index >= two_years_ago]
+
+    # ================= HISTORY MEASUREMENT (SIDEBAR) =================
+    st.sidebar.header("⏱ History Measurement")
+    
+    min_date = df_breadth.index.min().date()
+    max_date = df_breadth.index.max().date()
+    
+    default_start = max_date - timedelta(days=365)
+    default_end = max_date
+
+    start_date = st.sidebar.date_input("Từ ngày", value=default_start, min_value=min_date, max_value=max_date)
+    end_date = st.sidebar.date_input("Đến ngày", value=default_end, min_value=min_date, max_value=max_date)
+
+    if start_date > end_date:
+        st.sidebar.error("Lỗi: 'Từ ngày' phải trước hoặc bằng 'Đến ngày'.")
+
+    start_datetime = pd.to_datetime(start_date)
+    end_datetime = pd.to_datetime(end_date)
+    
+    df_breadth_plot = df_breadth[(df_breadth.index >= start_datetime) & (df_breadth.index <= end_datetime)]
 
     # ================= VẼ BIỂU ĐỒ BẰNG PLOTLY =================
-    fig = go.Figure()
+    if df_breadth_plot.empty:
+        st.warning("Không có dữ liệu trong khoảng thời gian bạn đã chọn.")
+    else:
+        fig = go.Figure()
+        colors = {'> MA20': '#1f77b4', '> MA60': '#ff7f0e', '> MA125': '#2ca02c', '> MA252': '#d62728'}
+        
+        for col in df_breadth_plot.columns:
+            fig.add_trace(go.Scatter(
+                x=df_breadth_plot.index, 
+                y=df_breadth_plot[col], 
+                mode='lines', 
+                name=col,
+                line=dict(width=2, color=colors[col])
+            ))
 
-    colors = {'> MA20': '#1f77b4', '> MA60': '#ff7f0e', '> MA125': '#2ca02c', '> MA252': '#d62728'}
-    
-    # Dùng df_breadth_plot để vẽ thay vì df_breadth nguyên bản
-    for col in df_breadth_plot.columns:
-        fig.add_trace(go.Scatter(
-            x=df_breadth_plot.index, 
-            y=df_breadth_plot[col], 
-            mode='lines', 
-            name=col,
-            line=dict(width=2, color=colors[col])
-        ))
+        fig.update_layout(
+            title=f"Số lượng cổ phiếu trên các đường MA ({start_date.strftime('%d/%m/%Y')} - {end_date.strftime('%d/%m/%Y')})",
+            xaxis_title="Thời gian",
+            yaxis_title="Số lượng cổ phiếu",
+            hovermode="x unified",
+            template="plotly_white",
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+            margin=dict(l=0, r=0, t=50, b=0)
+        )
 
-    fig.update_layout(
-        title="Số lượng cổ phiếu nằm trên các đường Trung bình động (MA) - 2 Năm gần nhất",
-        xaxis_title="Thời gian",
-        yaxis_title="Số lượng cổ phiếu",
-        hovermode="x unified",
-        template="plotly_white",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-        margin=dict(l=0, r=0, t=50, b=0)
-    )
+        st.plotly_chart(fig, use_container_width=True)
 
-    st.plotly_chart(fig, use_container_width=True)
+        # ================= HIỂN THỊ DỮ LIỆU HIỆN TẠI VÀ BẢNG TOP 10 =================
+        latest_date = df_breadth_plot.index[-1]
+        st.subheader(f"Dữ liệu Market Breadth cuối kỳ ({latest_date.strftime('%d/%m/%Y')})")
+        
+        latest_data = df_breadth_plot.iloc[-1]
+        
+        # Hàm trích xuất Top 10 Vol theo điều kiện MA
+        def get_top_10_vol(ma_condition):
+            # Lọc ra các cổ phiếu thỏa mãn điều kiện MA tại ngày cuối cùng
+            valid_stocks = ma_condition[ma_condition].index
+            if len(valid_stocks) == 0:
+                return pd.DataFrame()
+            
+            # Lấy volume của các mã này
+            vols = df_volumes.loc[latest_date, valid_stocks]
+            top_10 = vols.sort_values(ascending=False).head(10)
+            
+            # Đóng gói thành DataFrame để hiển thị đẹp hơn
+            df_top = pd.DataFrame({
+                "Mã CP": top_10.index,
+                "Khối lượng": top_10.values
+            })
+            df_top['Khối lượng'] = df_top['Khối lượng'].apply(lambda x: f"{int(x):,}")
+            return df_top
 
-    # ================= HIỂN THỊ DỮ LIỆU HIỆN TẠI =================
-    st.subheader(f"Dữ liệu Market Breadth hiện tại ({df_breadth_plot.index[-1].strftime('%d/%m/%Y')})")
-    latest_data = df_breadth_plot.iloc[-1]
-    
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Cổ phiếu > MA20", f"{int(latest_data['> MA20'])}")
-    col2.metric("Cổ phiếu > MA60", f"{int(latest_data['> MA60'])}")
-    col3.metric("Cổ phiếu > MA125", f"{int(latest_data['> MA125'])}")
-    col4.metric("Cổ phiếu > MA252", f"{int(latest_data['> MA252'])}")
+        # Tạo mask (điều kiện) cho ngày cuối cùng
+        mask_20 = df_prices.loc[latest_date] > ma20.loc[latest_date]
+        mask_60 = df_prices.loc[latest_date] > ma60.loc[latest_date]
+        mask_125 = df_prices.loc[latest_date] > ma125.loc[latest_date]
+        mask_252 = df_prices.loc[latest_date] > ma252.loc[latest_date]
+
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric("Cổ phiếu > MA20", f"{int(latest_data['> MA20'])}")
+            with st.popover("📋 Xem Top 10 Khối Lượng"):
+                st.dataframe(get_top_10_vol(mask_20), hide_index=True)
+                
+        with col2:
+            st.metric("Cổ phiếu > MA60", f"{int(latest_data['> MA60'])}")
+            with st.popover("📋 Xem Top 10 Khối Lượng"):
+                st.dataframe(get_top_10_vol(mask_60), hide_index=True)
+                
+        with col3:
+            st.metric("Cổ phiếu > MA125", f"{int(latest_data['> MA125'])}")
+            with st.popover("📋 Xem Top 10 Khối Lượng"):
+                st.dataframe(get_top_10_vol(mask_125), hide_index=True)
+                
+        with col4:
+            st.metric("Cổ phiếu > MA252", f"{int(latest_data['> MA252'])}")
+            with st.popover("📋 Xem Top 10 Khối Lượng"):
+                st.dataframe(get_top_10_vol(mask_252), hide_index=True)
 
     # ================= NÚT XÓA CACHE CHỦ ĐỘNG =================
     st.markdown("---")
