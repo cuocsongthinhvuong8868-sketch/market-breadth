@@ -69,7 +69,7 @@ def load_and_process_data(symbols):
         try:
             status_text.text(f"Đang tải dữ liệu: {symbol} ({i+1}/{len(symbols)})")
             
-            quote = Quote(symbol=symbol, source='VCI')
+            quote = Quote(symbol=symbol, source='KBS')
             df = quote.history(start=start_date, end=end_date, interval='1D')
             
             if df is not None and not df.empty:
